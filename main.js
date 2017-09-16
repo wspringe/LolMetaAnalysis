@@ -1,6 +1,10 @@
 // get walking directions from central park to the empire state building
 var https = require("https");
-url = "https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/Pickle%20Sandwich?api_key=RGAPI-1061ddb3-7957-4018-8cb0-0f81adaf9e08";
+var key = require("./config.js");
+
+console.log(key.key);
+
+url = "https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/Pickle%20Sandwich?api_key=" + key.key;
 
 // get is a simple wrapper for request()
 // which sets the http method to GET
