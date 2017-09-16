@@ -25,7 +25,7 @@ response.on("end", function (err) {
     // finished transferring data
     // dump the raw data
     console.log(buffer);
-    console.log("\n");
+    console.log("\n ");
     data = JSON.parse(buffer);
     summonerName = data.name;
 
