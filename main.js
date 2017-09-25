@@ -13,17 +13,18 @@ var riotAPI = require("./riotAPI");
 var matches           = [];
 var accountId         = "";
 var matchId           = "";
+var allMatchParticipants = [];
 var matchParticipants = [];
+var promises = [];
 
 // Initial seed
 var URL = utils.makeURL(riotAPI.getSummonerBySummonerName, "Pickle Sandwich", key.key);
 
 // Using async calls and promises to keep things orderly + starting promise chain
-// gets accountId from my Lague summoner name
-var promises = utils.makeRequest(URL).then(function(response) {
+// gets accountId from my League summoner name
+promises.push(utils.makeRequest(URL).then(function(response) {
   console.log("Success: ", response.accountId);
   accountId = response.accountId;
-  matchParticipants.push(accountId);
 }, function(error) {
   console.error("Error: ", error);
 }).then(function() {
@@ -31,25 +32,35 @@ var promises = utils.makeRequest(URL).then(function(response) {
   //retrieves matchid from most recent ranked game
   URL = utils.makeRankedMatchlistURL(riotAPI.getMatchListByAccount, accountId, "4", key.key);
   return utils.makeRequest(URL).then(function(response) {
-    matches.push(response[0]);
+    matches.push(response.matches[0].gameId);
     matchId = response.matches[0].gameId;
-    console.log(matchId);
   }).then(function() { 
 
     //gets match info from match id
     URL = utils.makeURL(riotAPI.getMatchByMatchID, matchId, key.key);
     return utils.makeRequest(URL).then(function(response) {
       //gets accountIds of all participants haven't seen before and puts them in array
-      matchParticipants.push.apply(matchParticipants, utils.getMatchParticipants(response, matchParticipants));
+      //this means we now have our intial list of 10 participants
+      matchParticipants.push.apply(matchParticipants, utils.getMatchParticipants(response, allMatchParticipants));
+      allMatchParticipants.push.apply(allMatchParticipants, matchParticipants);
     })
 
-  }).then(function() {
-    
   })
-})
+}).then(function() {
+  
+    URL = utils.makeRankedMatchlistURL(riotAPI.getMatchListByAccount, matchParticipants[0], "4", key.key);
+    return utils.makeRequest(URL).then(function(response) {
+      for(var j = 0; j < 99; j++)
+      {
+        matches.push(response.matches[j].gameId);
+      }
+    })
 
-Promise.all([promises])
-  .then(function() { console.log("after Request") })
+})
+);
+
+Promise.all(promises)
+  .then(function() { console.log("after Request \n" + matches.length) })
   .catch(console.error);
 
 

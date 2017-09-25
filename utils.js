@@ -33,12 +33,12 @@ makeRequest = function(URL) {
       response.on("end", function (err) {
           // finished transferring data
           // dump the raw data
-          console.log("This is the URL: " + URL)
           data = JSON.parse(buffer);
           resolve(data);
       });
       
       response.on("error", function (err) {
+        console.log("Error: " + err);
         resolve(Error(err));
       });
     });
@@ -64,7 +64,6 @@ getMatchParticipants = function(json, knownParticipants) {
     
     if(knownParticipants.indexOf(entry.player.accountId) === -1) {
       participants.push(entry.player.accountId);
-      console.log(entry.player.accountId);
     }
   })
   return participants;
